@@ -1,0 +1,23 @@
+# Author:      Akim Sissaoui
+# Action:      Create
+# Name:        73_Get_sharedvg_UUID
+# Type:        Set Variable
+# Variable:    sharedvg_uuid (string)  Used as a target to attach the VM
+# Script Type: eScript
+# Description: Retrieve newly created volume group UUID
+
+payload = {}
+
+search_string = "@@{calm_application_name}@@_sharedvg"
+
+api_url = 'https://@@{cluster_ip}@@:9440/PrismGateway/services/rest/v1/utils/entities?entityType=volume_group&&searchString=%s&projection=id,volume_group_name' % search_string
+
+headers = {'Content-Type': 'application/json',  'Accept':'application/json'}
+r = urlreq(api_url, verb='GET', auth="BASIC", user='@@{pe_cred.username}@@', passwd='@@{pe_cred.secret}@@', params=json.dumps(payload), headers=headers, verify=False)
+if r.ok:
+    resp = json.loads(r.content)
+else:
+    print "Post request failed", r.content
+    exit(1)
+
+print('sharedvg_uuid = %s' % (resp['entities'][0]['id']))

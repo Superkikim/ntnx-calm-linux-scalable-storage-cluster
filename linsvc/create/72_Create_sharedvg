@@ -1,0 +1,58 @@
+# Author:      Akim Sissaoui
+# Action:      Create
+# Name:        72_Create_sharedvg
+# Type:        Execute
+# Script Type: eScript
+# Description: If vm 0, Create the shared volume group for the clustered
+#              application (i.e. for GPFS)
+
+# Skip if not VM 0
+if @@{calm_array_index}@@ != 0:
+  print("Not VM 0")
+  exit(0)
+
+# Create json payload with volume group name and caracteristics
+payload = {
+  "name": "@@{calm_application_name}@@_sharedvg",
+  "description": "Volume Group for sharedvg (GPFS)",
+  "enabled_authentications": [
+    {
+      "auth_type": "none",
+      "password": ""
+    }
+  ],
+  "flash_mode_enabled": "false",
+  "is_shared": "true",
+  "iscsi_target_prefix": "sharedvg"
+}
+
+# Calculate vdisks size based on number of nodes in the cluster and required
+# capacity
+vdisk_mb = @@{sharedvg_gib}@@/@@{nr_of_nodes}@@/4*1024
+
+
+# Create vdisks for the volume group
+disk_list = []
+
+for x in range(@@{nr_of_nodes}@@*4):
+  disk_list.append(
+{
+  "create_spec": {
+    "container_uuid": "@@{container_uuid}@@",
+    "size_mb": (vdisk_mb)
+  }
+})
+
+payload["disk_list"] = disk_list
+
+# Execute API call
+api_url = 'https://@@{cluster_ip}@@:9440/api/nutanix/v2.0/volume_groups/'
+headers = {'Content-Type': 'application/json',  'Accept':'application/json'}
+r = urlreq(api_url, verb='POST', auth="BASIC", user='@@{pe_cred.username}@@', passwd='@@{pe_cred.secret}@@', params=json.dumps(payload), headers=headers, verify=False)
+if r.ok:
+    resp = json.loads(r.content)
+else:
+    print "Post request failed", r.content
+    exit(1)
+
+pprint(resp)

@@ -1,0 +1,28 @@
+# Author:      Akim Sissaoui
+# Action:      Create
+# Name:        75_Get_list_of_sharedvg_vmdisks_uuid
+# Type:        Set Variable
+# Variable:    sharedvg_vdisks (multiline string)
+# Script Type: eScript
+# Description: Retrieve the list of vdisks from the volume group.  This will be
+#              used when deleting the volume
+
+
+
+payload = {}
+
+api_url = 'https://@@{cluster_ip}@@:9440/PrismGateway/services/rest/v2.0/volume_groups/@@{sharedvg_uuid}@@'
+
+headers = {'Content-Type': 'application/json',  'Accept':'application/json'}
+r = urlreq(api_url, verb='GET', auth="BASIC", user='@@{pe_cred.username}@@', passwd='@@{pe_cred.secret}@@', params=json.dumps(payload), headers=headers, verify=False)
+if r.ok:
+    resp = json.loads(r.content)
+else:
+    print "Post request failed", r.content
+    exit(1)
+
+uuids= ""
+for disk in resp['disk_list']:
+  uuids+=disk['vmdisk_uuid'].replace('-','_')+" "
+
+print('sharedvg_vdisks = %s' % uuids)

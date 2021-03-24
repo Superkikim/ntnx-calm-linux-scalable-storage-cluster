@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+# Author:      Akim Sissaoui
+# Action:      Packages Install
+# Name:        10_Install_development_packages
+# Type:        Execute
+# Script Type: Shell
+# Description: Install headers and compilation tools
+
+# Script:
+
+set -ex
+
+sudo yum install cpp gcc gcc-c++ kernel-headers kernel-devel -y

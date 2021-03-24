@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+# Author:      Akim Sissaoui
+# Action:      Create
+# Name:        95_Create_nodelist_file
+# Type:        Execute
+# Script Type: Shell
+# Description: Create the node list file with roles
+
+# Script:
+
+hn=$(hostname);
+
+case @@{calm_array_index}@@ in
+    [0-2])
+        ssh -o StrictHostKeyChecking=no @@{calm_array_address[0]}@@ "echo -e '$hn:quorum-manager' | tee -a nodelist.txt"
+    ;;
+    *)
+        ssh -o StrictHostKeyChecking=no @@{calm_array_address[0]}@@ "echo -e '$hn:manager' | tee -a nodelist.txt"
+    ;;
+esac
+
+# add host to vm0 known_hosts
+ssh -o StrictHostKeyChecking=no @@{calm_array_address[0]}@@ "echo -e '$(ssh-keyscan $hn)' | sudo tee -a /root/.ssh/known_hosts"

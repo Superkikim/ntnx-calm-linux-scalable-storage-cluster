@@ -1,0 +1,52 @@
+# Author:      Akim Sissaoui
+# Action:      Delete
+# Name:        30_Delete_sharedvg_vg
+# Type:        Execute
+# Script Type: eScript
+# Description: Delete the shared volume group: THIS WILL DESTROY ALL DATA ON THE
+#              VOLUME AND CANNOT BE UNDONE
+
+if @@{calm_array_index}@@ != 0:
+  print("Not VM 0")
+  exit(0)
+
+payload = {}
+
+api_url = 'https://@@{cluster_ip}@@:9440/api/nutanix/v2.0/volume_groups/@@{sharedvg_uuid}@@'
+headers = {'Content-Type': 'application/json',  'Accept':'application/json'}
+r = urlreq(api_url, verb='GET', auth="BASIC", user='@@{pe_cred.username}@@', passwd='@@{pe_cred.secret}@@', params=json.dumps(payload), headers=headers, verify=False)
+if r.ok:
+    resp = json.loads(r.content)
+else:
+    print "Post request failed", r.content
+    exit(1)
+
+# Skip if the volume group is attached to VMs
+if 'attachment_list' in resp:
+  print("Volume group is attached to one or multiple VMs")
+  exit(0)
+
+# Delete vdisks from Volume Group sharedvg
+
+if 'disk_list' in resp:
+  for disk in resp['disk_list']:
+    payload = {}
+    api_url = 'https://@@{cluster_ip}@@:9440/api/nutanix/v2.0/volume_groups/@@{sharedvg_uuid}@@/disks/%s' % disk['index']
+    headers = {'Content-Type': 'application/json',  'Accept':'application/json'}
+    r = urlreq(api_url, verb='DELETE', auth="BASIC", user='@@{pe_cred.username}@@', passwd='@@{pe_cred.secret}@@', params=json.dumps(payload), headers=headers, verify=False)
+    if r.ok:
+      resp = json.loads(r.content)
+    else:
+      print "Post request failed", r.content
+      exit(1)
+
+# Delete volume group
+api_url = 'https://@@{cluster_ip}@@:9440/api/nutanix/v2.0/volume_groups/@@{sharedvg_uuid}@@'
+headers = {'Content-Type': 'application/json',  'Accept':'application/json'}
+r = urlreq(api_url, verb='DELETE', auth="BASIC", user='@@{pe_cred.username}@@', passwd='@@{pe_cred.secret}@@', params=json.dumps(payload), headers=headers, verify=False)
+if r.ok:
+    resp = json.loads(r.content)
+else:
+    print "Post request failed", r.content
+    exit(1)
+pprint(resp)

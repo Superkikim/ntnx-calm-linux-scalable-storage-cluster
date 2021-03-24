@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+# Author:      Akim Sissaoui
+# Action:      Create
+# Name:        20_Change_hostname
+# Type:        Execute
+# Script Type: Shell
+# Description: Set the hostname to the Calm VM Name
+
+# Script:
+
+set -ex
+
+sudo hostnamectl set-hostname @@{name}@@

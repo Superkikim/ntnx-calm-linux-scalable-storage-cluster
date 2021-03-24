@@ -1,0 +1,13 @@
+# Author:             Akim Sissaoui
+# Action:             Create - Pre-create
+# Name:               1_Get_cluster_IP
+# Type:               HTTP Task
+# Request URL:        https://localhost:9440/api/nutanix/v3/clusters/@@{platform.status.cluster_reference.uuid}@@
+# Request Method:     GET
+# Content Type:       JSON (application/json)
+# Authentication:     BASIC (With Credentials)
+# Credential:         pc_cred
+# Response code:      200, SUCCESS
+#                     401, FAILURE
+# Variable:           cluster_ip
+# Path:               $.spec.resources.network.external_ip

@@ -1,0 +1,22 @@
+# Author:      Akim Sissaoui
+# Action:      Create
+# Name:        65_Get_Nr_of_Nodes
+# Type:        Set Variable
+# Variable:    nr_of_nodes (Integer)  Nr of nodes in the cluster
+# Script Type: eScript
+# Description: Get number of nodes in the target cluster
+
+# Script:
+
+payload = {}
+
+api_url = 'https://@@{pc_ip}@@:9440/api/nutanix/v3/clusters/@@{platform.status.cluster_reference.uuid}@@'
+headers = {'Content-Type': 'application/json',  'Accept':'application/json'}
+r = urlreq(api_url, verb='GET', auth="BASIC", user='@@{pc_cred.username}@@', passwd='@@{pc_cred.secret}@@', params=json.dumps(payload), headers=headers, verify=False)
+if r.ok:
+    resp = json.loads(r.content)
+else:
+    print "Post request failed", r.content
+    exit(1)
+
+print('nr_of_nodes = %s') % str(len(resp['status']['resources']['nodes']['hypervisor_server_list'])-1)

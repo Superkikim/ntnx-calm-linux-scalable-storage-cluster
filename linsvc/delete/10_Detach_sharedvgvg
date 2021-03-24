@@ -1,0 +1,20 @@
+# Author:      Akim Sissaoui
+# Action:      Delete
+# Name:        10_Detach_sharedvg
+# Type:        Execute
+# Script Type: eScript
+# Description: Detach the shared volume group from the VM
+
+payload = {
+  "vm_uuid":"@@{id}@@"
+}
+
+api_url = 'https://@@{cluster_ip}@@:9440/PrismGateway/services/rest/v2.0/volume_groups/@@{sharedvg_uuid}@@/detach'
+headers = {'Content-Type': 'application/json',  'Accept':'application/json'}
+r = urlreq(api_url, verb='POST', auth="BASIC", user='@@{pe_cred.username}@@', passwd='@@{pe_cred.secret}@@', params=json.dumps(payload), headers=headers, verify=False)
+if r.ok:
+    resp = json.loads(r.content)
+else:
+    print "Post request failed", r.content
+    exit(1)
+pprint(resp)

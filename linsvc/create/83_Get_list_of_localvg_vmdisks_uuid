@@ -1,0 +1,25 @@
+# Author:      Akim Sissaoui
+# Action:      Create
+# Name:        83_Get_list_of_localvg_vmdisks_uuid
+# Type:        Set Variable
+# Variable:    localvg_vdisks (string)
+# Script Type: eScript
+# Description: Retrieve the list of vdisks for the volume group.
+
+payload = {}
+
+api_url = 'https://@@{cluster_ip}@@:9440/PrismGateway/services/rest/v2.0/volume_groups/@@{localvg_uuid}@@'
+
+headers = {'Content-Type': 'application/json',  'Accept':'application/json'}
+r = urlreq(api_url, verb='GET', auth="BASIC", user='@@{pe_cred.username}@@', passwd='@@{pe_cred.secret}@@', params=json.dumps(payload), headers=headers, verify=False)
+if r.ok:
+    resp = json.loads(r.content)
+else:
+    print "Post request failed", r.content
+    exit(1)
+
+uuids= ""
+for disk in resp['disk_list']:
+  uuids+=disk['vmdisk_uuid'].replace('-','_')+" "
+
+print('localvg_vdisks = %s' % uuids)

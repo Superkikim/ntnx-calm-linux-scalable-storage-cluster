@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+
+# Author:      Akim Sissaoui
+# Action:      Create
+# Name:        41b_Update_Match_directive
+# Type:        Execute
+# Script Type: Shell
+# Description: Loop all the VM to correct the directive if required
+
+# Script:
+
+# ADDRESS ARRAY BUG, LINE 20: # March 2021 16th
+
+# March 2021 16th: Due to a bug, if VM is added as scale out action, th script needs to be run differenty. Therefore
+# If the samaphore file does not exist (VM created subsenquently with Scale Out action), calm_array_address is missing
+# new VM IP which needs to be added... This has to be removed when the bug is fixed
+
+if ! [ -f /home/@@{admin_cred.username}@@/changes/semaphore ]
+  then
+    ips=($(echo "@@{calm_array_address}@@,@@{address}@@" | tr "," " "))
+
+    #Get number of replicas
+    nr_of_ips=${#ips[@]}
+
+    # Push hosts file to other VMs
+    for index in $(seq 0 $(expr $nr_of_ips - 1))
+      do
+        case $index in
+          @@{calm_array_index}@@)
+          echo "This is the current VM. nothing to do"
+          ;;
+          *)
+          ssh -o StrictHostKeyChecking=no ${ips[$index]} "sudo scp -o StrictHostKeyChecking=no @@{address}@@:/etc/ssh/sshd_config /etc/ssh/sshd_config;sudo service sshd restart;echo ${ips[$index]} file:;tail -n4 /etc/ssh/sshd_config"
+          ;;
+        esac
+      done
+fi
+
+# Tail sshd_config for troubleshooting purpose
+tail -n4 /etc/ssh/sshd_config

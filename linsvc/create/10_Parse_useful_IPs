@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+# Author:      Akim Sissaoui
+# Name:        10_Parse_useful_IPs
+# Type:        Set Variable
+# Variables:   public_ip (string) Public IP of the virtual machine,
+#                                 used for firewall lockdown
+#              pc_ip (string)     Prism Central IP used for API calls in bash
+# Script Type: Shell
+# Description:
+
+# Script:
+
+# Stop the script if any error a raised
+set -ex
+
+# Get the public IP address used to access the internet
+currentip=`wget --no-check-certificate -q checkip.dyndns.org -O index.html && cat index.html|cut -d ' ' -f 6 | cut -d '<' -f 1`
+
+# Get Prism Central IP address
+pcip="${SSH_CLIENT%% *}"
+
+# Pass variables to Calm
+echo "public_ip = $currentip"
+echo "pc_ip = $pcip"

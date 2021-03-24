@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+# Author:      Akim Sissaoui
+# Action:      Create
+# Name:        45_Add_nodes_to_vm0_hosts_file
+# Type:        Execute
+# Script Type: Shell
+# Description: Connect to VM 0 and add the host to the host files
+#              This might be replaced by registering the node in DNS instead
+
+# Script:
+
+set -ex
+
+# Add host to vm 0 hosts file
+ssh -o StrictHostKeyChecking=no @@{calm_array_address[0]}@@ 'echo -e "@@{address}@@\t@@{name}@@" | sudo tee -a /etc/hosts'

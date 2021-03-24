@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+# Author:      Akim Sissaoui
+# Action:      Create
+# Name:        1_Install_various_packages
+# Type:        Execute
+# Script Type: Shell
+# Description: Installation of any standard packages required for the use case
+
+# Script:
+
+set -e
+
+sudo yum install epel-release -y
+
+sudo yum install nano htop samba-client wget lshw lvm2 inotify-tools lsscsi mdadm -y

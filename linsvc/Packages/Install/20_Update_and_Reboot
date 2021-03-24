@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+# Author:      Akim Sissaoui
+# Action:      Packages Install
+# Name:        20_Upgrade_package_and_reboot_vm
+# Type:        Execute
+# Script Type: Shell
+# Description: Perform a package upgrade (yum) and reboot.
+#              Requires 30 secondes Delay added to wait for VM to reboot
+
+# Script:
+
+sudo yum update -y
+
+sudo -b reboot

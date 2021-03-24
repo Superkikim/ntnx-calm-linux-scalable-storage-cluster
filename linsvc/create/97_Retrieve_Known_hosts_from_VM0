@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+# Author:      Akim Sissaoui
+# Action:      Create
+# Name:        97_Retrieve_Known_hosts_from_VM0
+# Type:        Execute
+# Script Type: Shell
+# Description: Retrieve known_hosts from local user and root to this machine
+# Script:
+
+scp @@{calm_array_address[0]}@@:.ssh/known_hosts .ssh/
+sudo scp @@{calm_array_address[0]}@@:/root/.ssh/known_hosts /root/.ssh/

@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+
+# Author:      Akim Sissaoui
+# Action:      Create
+# Name:        84_Create_localvg_filesystem
+# Type:        Execute
+# Script Type: Shell
+# Description: Create LVM volume group, logical volume and format as XFS
+# Script:
+
+set -ex
+
+localvg_vdisks="@@{localvg_vdisks}@@"
+
+# Add one UUID per line
+for uuid in $localvg_vdisks;do uuids=$"$uuids$uuid\n";done
+
+# Remove trailing empty line
+uuids=${uuids::-2}
+
+devs=$(lsblk -nodeps -no name,serial -PS /dev/sd* | grep -Ff <(echo -e $uuids) | cut -d\" -f2)
+
+for dev in $devs
+  do pv="$pv/dev/$dev "
+done
+
+sudo vgcreate -s 1M localvg $pv
+
+# Create an LVM volume group
+sudo lvcreate -n localvol --extents 100%FREE -i 4 -I 1M localvg
+
+# Create XFS file system
+sudo mkfs.xfs -b size=4k -d sw=4,su=1m /dev/localvg/localvol
+
+# Create Mount point
+sudo mkdir @@{localvol_mount_point}@@
+
+# Add mountpoint to fstab for mount at boot
+sudo cp /etc/fstab /etc/fstab.iscsi.bak -n
+echo -e "UUID=$(sudo blkid -o value -s UUID /dev/mapper/localvg-localvol)\t@@{localvol_mount_point}@@\txfs\tdefaults\t0\t0" | sudo tee -a /etc/fstab
+# Try to mount new fstab entry
+sudo mount -a
+
+# Verify mounted file system
+echo "Verifying mounted filesystem:"
+if [ $(df -h | grep -c "localvol1") == 1 ];then echo -e "\nFile successfully mounted:\n";df -h | grep "localvol1";echo -e "\n\n";else echo -e "\nThere seem to be a problem. Please check your config:\n\nMounted filesystems:\n\n$(df -h)\nContent of fstab:\n\n$(cat /etc/fstab)\n";fi
+
+# cat fstab for troubleshooting purpose
+cat /etc/fstab

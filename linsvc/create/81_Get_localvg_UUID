@@ -1,0 +1,24 @@
+# Author:      Akim Sissaoui
+# Action:      Create
+# Name:        81_Get_localvg_UUID
+# Type:        Set Variable
+# Variable:    localvg_uuid (string)   Used as a target to attach the VM
+# Description: Retrieve newly created local volume group UUID
+
+# Script Type: eScript
+
+payload = {}
+
+vgname = "@@{name}@@".replace("_","-")+"-vg"
+
+api_url = 'https://@@{cluster_ip}@@:9440/PrismGateway/services/rest/v1/utils/entities?entityType=volume_group&&searchString=%s&projection=id,volume_group_name' % vgname
+
+headers = {'Content-Type': 'application/json',  'Accept':'application/json'}
+r = urlreq(api_url, verb='GET', auth="BASIC", user='@@{pe_cred.username}@@', passwd='@@{pe_cred.secret}@@', params=json.dumps(payload), headers=headers, verify=False)
+if r.ok:
+    resp = json.loads(r.content)
+else:
+    print "Post request failed", r.content
+    exit(1)
+
+print('localvg_uuid = %s' % (resp['entities'][0]['id']))

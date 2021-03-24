@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+# Author:      Akim Sissaoui
+# Action:      Create
+# Name:        11_Add_Private_Key
+# Type:        Execute
+# Script Type: Shell
+# Description: Write private key for centos and root users. Add public key to
+#              root to allow root to connect without password
+
+# Script:
+
+# Stop if any error is raised
+set -ex
+
+# Save the admin private key to the admin user ssh folder
+echo -e "@@{admin_cred.secret}@@" | tee .ssh/id_rsa
+chmod 0600 .ssh/id_rsa
+
+# Save the admin private key to the root ssh folder
+echo -e "@@{admin_cred.secret}@@" | sudo tee /root/.ssh/id_rsa
+sudo chmod 0600 /root/.ssh/id_rsa
+
+# Add the public key to the root ssh authorized keys
+echo "@@{ssh_key}@@" | sudo tee -a /root/.ssh/authorized_keys
